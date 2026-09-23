@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RS Soul — Music Player</title>
+  <meta name="description" content="RS Soul — a premium self-hosted music player that streams tracks straight from a GitHub Releases feed.">
+
+  <!-- Theme is resolved before first paint to avoid a flash of the wrong theme.
+       Reads the same 'sonora-theme' key that js/app.js will write to later. -->
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem('sonora-theme');
+        var theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (err) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <meta name="theme-color" content="#0a0b10" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f4f9" media="(prefers-color-scheme: light)">
+
+  <!-- Favicon — RS Soul mark: circle with RS text + gradient stroke -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%232fe0ff'/%3E%3Cstop offset='100%25' stop-color='%23b16bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='44' fill='%230a0b10'/%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='url(%23g)' stroke-width='6'/%3E%3Ctext x='50' y='64' font-family='Arial,Helvetica,sans-serif' font-size='40' font-weight='900' text-anchor='middle' fill='url(%23g)' letter-spacing='-2'%3ERS%3C/text%3E%3C/svg%3E">
+
+  <!-- Fonts: Syne for display/headline type, DM Sans for UI copy, JetBrains Mono for time readouts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Tailwind: utility classes for layout/spacing/responsive show-hide.
+       Loaded first so our own stylesheets below can win any property conflicts. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Bootstrap: used narrowly, for its toast component only -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+  <!-- Design tokens (colors, light/dark theme) then component styles -->
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/patch-title.css">
+</head>
+<body>
+
+  <a href="#main-deck" class="skip-link">Skip to player</a>
+
+  <div class="app-shell">
+
+    <!-- ============ HEADER ============ -->
+    <header class="app-header glass">
+      <div class="header-left flex items-center gap-3">
+        <button id="sidebar-toggle" class="icon-btn md:hidden" aria-label="Toggle queue" aria-expanded="false" aria-controls="sidebar">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">RS Soul</span>
+          <span class="brand-tagline">Feel the music</span>
+        </div>
+      </div>
+
+      <div class="header-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" id="track-search" placeholder="Search tracks or artists" aria-label="Search playlist">
+      </div>
+
+      <div class="header-right flex items-center gap-2">
+        <button id="theme-toggle" class="icon-btn" aria-label="Switch to light theme" aria-pressed="false">
+          <i class="fa-solid fa-moon" id="theme-icon" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="app-body" id="app-body">
+
+      <!-- ============ SIDEBAR / QUEUE ============ -->
+      <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close queue" tabindex="-1"></button>
+
+      <aside id="sidebar" class="sidebar glass" aria-label="Playlist queue">
+        <div class="sidebar-header">
+          <h2>Queue</h2>
+          <span id="queue-count" class="queue-count">0 tracks</span>
+        </div>
+
+        <!-- ============ FILTER TABS ============ -->
+        <div class="filter-tabs" role="tablist" aria-label="Filter tracks">
+          <button type="button"
+                  class="filter-tab is-active"
+                  data-filter="all"
+                  role="tab"
+                  aria-selected="true">
+            All
+          </button>
+          <button type="button"
+                  class="filter-tab"
+                  data-filter="liked"
+                  role="tab"
+                  aria-selected="false">
+            <i class="fa-solid fa-heart" aria-hidden="true"></i>
+            Liked
+          </button>
+          <button type="button"
+                  class="filter-tab"
+                  data-filter="recent"
+                  role="tab"
+                  aria-selected="false">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            Recent
+          </button>
+        </div>
+
+        <!-- ============ SORT DROPDOWN ============ -->
+        <div class="sort-control">
+          <label for="sort-select" class="sr-only">Sort tracks by</label>
+          <select id="sort-select" class="sort-select" aria-label="Sort tracks by">
+            <option value="default">Default order</option>
+            <option value="title-asc">Title (A–Z)</option>
+            <option value="title-desc">Title (Z–A)</option>
+            <option value="artist-asc">Artist (A–Z)</option>
+            <option value="artist-desc">Artist (Z–A)</option>
+            <option value="duration-asc">Duration (short first)</option>
+            <option value="duration-desc">Duration (long first)</option>
+          </select>
+        </div>
+
+        <!-- ============ FILTER CHIPS ============ -->
+        <div id="filter-chips" class="filter-chips" hidden aria-live="polite"></div>
+
+        <div id="queue-status" class="queue-status" role="status" aria-live="polite">
+          <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+          <span>Loading tracks from GitHub…</span>
+        </div>
+
+        <!-- Populated by js/playlist.js -->
+        <ul id="playlist" class="playlist" role="listbox" aria-label="Tracks"></ul>
+      </aside>
+
+      <!-- ============ MAIN DECK ============ -->
+      <main class="deck" id="main-deck">
+
+        <div class="deck-art-wrap">
+          <div class="deck-glow" id="deck-glow" aria-hidden="true"></div>
+          <div class="deck-disc" id="deck-disc">
+            <img id="album-art" class="deck-art" src="" alt="" hidden>
+            <i class="fa-solid fa-music deck-art-placeholder" id="deck-art-placeholder" aria-hidden="true"></i>
+            <div class="deck-disc-hole" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="deck-meta">
+          <h1 id="track-title" class="track-title">No track loaded</h1>
+          <p id="track-artist" class="track-artist">Connect a GitHub repository to begin</p>
+          <p id="track-album" class="track-album"></p>
+        </div>
+
+        <div class="deck-scrubber">
+          <span id="current-time" class="time-readout">00:00</span>
+          <div class="waveform-track" id="waveform-track" role="slider" aria-label="Seek"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+            <div class="waveform-bars" id="waveform-bars" aria-hidden="true"></div>
+            <div class="waveform-fill" id="waveform-fill"></div>
+            <div class="waveform-handle" id="waveform-handle"></div>
+          </div>
+          <span id="duration-time" class="time-readout">00:00</span>
+        </div>
+
+        <div class="deck-controls">
+          <button class="ctrl-btn" id="shuffle-btn" aria-label="Shuffle" aria-pressed="false">
+            <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
+          </button>
+          <button class="ctrl-btn" id="prev-btn" aria-label="Previous track">
+            <i class="fa-solid fa-backward-step" aria-hidden="true"></i>
+          </button>
+          <button class="ctrl-btn ctrl-btn-play" id="play-btn" aria-label="Play">
+            <i class="fa-solid fa-play" id="play-icon" aria-hidden="true"></i>
+          </button>
+          <button class="ctrl-btn" id="next-btn" aria-label="Next track">
+            <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
+          </button>
+          <button class="ctrl-btn" id="repeat-btn" aria-label="Repeat off" data-mode="off">
+            <i class="fa-solid fa-repeat" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="deck-secondary">
+          <div class="volume-control">
+            <button id="mute-btn" class="icon-btn-sm" aria-label="Mute">
+              <i class="fa-solid fa-volume-high" id="volume-icon" aria-hidden="true"></i>
+            </button>
+            <input type="range" id="volume-slider" class="range-input" min="0" max="100" value="80" aria-label="Volume">
+          </div>
+
+          <div class="deck-actions">
+            <button class="icon-btn-sm" id="like-btn" aria-label="Add to favorites" aria-pressed="false">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </button>
+            <button class="icon-btn-sm" id="download-btn" aria-label="Download track">
+              <i class="fa-solid fa-download" aria-hidden="true"></i>
+            </button>
+            <button class="icon-btn-sm" id="share-btn" aria-label="Share track">
+              <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+            </button>
+            <button class="icon-btn-sm" id="lyrics-toggle" aria-label="Show lyrics" aria-pressed="false" aria-controls="lyrics-panel">
+              <i class="fa-solid fa-align-left" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Web Audio API frequency bars render here once js/player.js wires it up -->
+        <!--<canvas id="visualizer" class="visualizer" aria-hidden="true"></canvas>-->
+      </main>
+
+      <!-- ============ LYRICS PANEL (optional, hidden until toggled) ============ -->
+      <aside id="lyrics-panel" class="lyrics-panel glass" aria-label="Lyrics" hidden>
+        <div class="lyrics-header">
+          <h2>Lyrics</h2>
+          <button id="lyrics-close" class="icon-btn-sm" aria-label="Close lyrics">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div id="lyrics-content" class="lyrics-content">
+          <p class="lyrics-empty">No lyrics available for this track.</p>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <audio id="audio-player" preload="metadata"></audio>
+
+  <!-- Toast notifications (Bootstrap's toast component, restyled to match the theme in styles.css) -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ============ SCRIPTS ============ -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+  
+  <script src="js/utils.js" defer></script>
+  <script src="js/github-api.js" defer></script>
+  <script src="js/playlist.js" defer></script>
+  <script src="js/player.js" defer></script>
+  <script src="js/app.js" defer></script>
+  
+</body>
+</html>

@@ -1,0 +1,929 @@
+/* ==========================================================================
+   RS Soul — UI Patches & Component Styles
+   --------------------------------------------------------------------------
+   Loaded AFTER css/styles.css so the rules here win.
+   Sections:
+     1. Layout & scroll (body fixed, queue scrolls)
+     2. Deck meta (title/artist/album overflow)
+     3. Sidebar queue items + thumbnails
+     4. Unified player card
+     5. Header search focus ring
+     6. Filter system (tabs, sort, chips)
+     7. Release groups (collapsible)
+     8. Brand tagline
+     9. Responsive + reduced motion
+   ========================================================================== */
+
+/* ==========================================================================
+   1. LAYOUT & SCROLL
+   ========================================================================== */
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.app-shell {
+  height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 30;
+}
+
+.app-body {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sidebar .sidebar-header,
+.sidebar .queue-status,
+.sidebar .filter-tabs,
+.sidebar .sort-control,
+.sidebar .filter-chips {
+  flex-shrink: 0;
+}
+
+.sidebar .playlist {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 0.5rem;
+}
+
+/* ---------- Deck ---------- */
+
+.deck {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 1.25rem 2.5rem;
+}
+
+.deck > *:last-child {
+  margin-bottom: 0.5rem;
+}
+
+/* ---------- Lyrics panel ---------- */
+
+.lyrics-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.lyrics-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ---------- Mobile sidebar drawer ---------- */
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    height: 100%;
+    max-height: 100%;
+  }
+}
+
+/* ==========================================================================
+   2. DECK META — title / artist / album overflow fix
+   ========================================================================== */
+
+.deck-meta {
+  min-height: auto;
+  max-width: 36rem;
+  width: 100%;
+  padding: 0.5rem 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.track-title {
+  font-size: clamp(1.1rem, 2.1vw, 1.55rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+.track-artist {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin: 0;
+}
+
+.track-album {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* ---------- Short screens ---------- */
+
+@media (max-height: 760px) {
+  .deck {
+    gap: 1rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .deck-art-wrap {
+    width: min(200px, 45vw);
+  }
+
+  .deck-meta {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    gap: 0.2rem;
+  }
+
+  .track-title {
+    font-size: clamp(1rem, 1.8vw, 1.35rem);
+  }
+
+  .track-artist {
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-height: 620px) {
+  .deck-art-wrap {
+    width: min(160px, 40vw);
+  }
+
+  .track-title {
+    -webkit-line-clamp: 1;
+    font-size: 1rem;
+  }
+
+  .track-artist,
+  .track-album {
+    font-size: 0.8rem;
+  }
+}
+
+/* ==========================================================================
+   3. SIDEBAR QUEUE ITEMS + THUMBNAILS
+   ========================================================================== */
+
+.track-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.track-item:hover { background: var(--surface-strong); }
+
+.track-item.is-active {
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.track-index {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  width: 1.4rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.track-item.is-active .track-index { color: var(--accent); }
+
+/* ---------- Thumbnail ---------- */
+
+.track-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.track-item.is-active .track-thumb {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft),
+              0 0 12px rgba(47, 224, 255, 0.25);
+}
+
+.track-thumb.is-spinning {
+  animation: thumb-spin 8s linear infinite;
+}
+
+@keyframes thumb-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Track text ---------- */
+
+.track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.track-by {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Deck disc ---------- */
+
+.deck-disc {
+  overflow: hidden;
+}
+
+.deck-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ==========================================================================
+   4. UNIFIED PLAYER CARD
+   ========================================================================== */
+
+.deck-art-wrap {
+  width: min(260px, 55vw);
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
+.deck-scrubber {
+  width: 100%;
+  max-width: 32rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.deck-controls {
+  width: 100%;
+  max-width: 32rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  margin-top: -1px;
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
+}
+
+.deck-controls::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(47, 224, 255, 0.04),
+    transparent 70%
+  );
+}
+
+.deck-secondary {
+  width: 100%;
+  max-width: 32rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  margin-top: -1px;
+}
+
+@media (max-width: 640px) {
+  .deck {
+    padding: 1.25rem 0.75rem 1.75rem;
+    gap: 1rem;
+  }
+
+  .deck-art-wrap {
+    width: min(200px, 60vw);
+  }
+
+  .deck-scrubber,
+  .deck-controls,
+  .deck-secondary {
+    max-width: 100%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .deck-controls { gap: 0.6rem; }
+
+  .ctrl-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 0.95rem;
+  }
+
+  .ctrl-btn-play {
+    width: 56px;
+    height: 56px;
+    font-size: 1.15rem;
+  }
+
+  .deck-secondary {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+
+  .volume-control {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .range-input {
+    width: 100%;
+    max-width: 110px;
+  }
+}
+
+@media (max-width: 380px) {
+  .deck-actions { gap: 0.15rem; }
+
+  .deck-actions .icon-btn-sm {
+    width: 30px;
+    height: 30px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ==========================================================================
+   5. HEADER SEARCH — single focus ring
+   ========================================================================== */
+
+.header-search input,
+.header-search input:focus,
+.header-search input:focus-visible,
+.header-search input:active {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.header-search:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
+  outline: none !important;
+}
+
+.header-search {
+  outline: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.header-search input.form-control,
+.header-search input[type="search"] {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.header-search input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  background: none;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+.header-search input[type="search"]::-webkit-search-cancel-button:hover {
+  opacity: 1;
+}
+
+input:focus,
+input:focus-visible {
+  outline: none;
+}
+
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.header-search input:focus-visible {
+  outline: none !important;
+}
+
+/* ==========================================================================
+   6. FILTER SYSTEM — tabs, sort dropdown, chips
+   ========================================================================== */
+
+/* ---------- Filter tabs ---------- */
+
+.filter-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.filter-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.5rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+
+.filter-tab:hover {
+  color: var(--text-primary);
+  background: var(--surface-strong);
+}
+
+.filter-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.filter-tab.is-active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(47, 224, 255, 0.25);
+}
+
+.filter-tab i {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+/* ---------- Sort dropdown ---------- */
+
+.sort-control {
+  margin-bottom: 0.5rem;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sort-select {
+  width: 100%;
+  padding: 0.4rem 1.9rem 0.4rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.55rem center;
+  background-size: 10px;
+}
+
+.sort-select:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-strong);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.sort-select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .sort-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23444' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+}
+
+/* ---------- Filter chips ---------- */
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.filter-chips[hidden] { display: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.3rem 0.22rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(47, 224, 255, 0.28);
+  border-radius: 999px;
+  line-height: 1.2;
+  max-width: 100%;
+  animation: chip-in 0.18s ease;
+}
+
+.chip > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 9rem;
+}
+
+.chip .chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  font-size: 0.58rem;
+  color: var(--accent);
+  background: rgba(47, 224, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.chip .chip-remove:hover {
+  background: rgba(47, 224, 255, 0.35);
+  transform: scale(1.08);
+}
+
+.chip .chip-remove:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@keyframes chip-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ==========================================================================
+   7. RELEASE GROUPS — collapsible headers
+   ========================================================================== */
+
+.release-group-header {
+  list-style: none;
+  margin-top: 0.5rem;
+  margin-bottom: 0.15rem;
+  padding: 0;
+}
+
+.release-group-header:first-child { margin-top: 0; }
+
+.release-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.55rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+  text-align: left;
+}
+
+.release-toggle:hover {
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+.release-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.release-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.release-toggle:hover .release-caret { color: var(--accent); }
+.release-group-header.is-collapsed .release-caret { transform: rotate(-90deg); }
+
+.release-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.release-toggle:hover .release-label { color: var(--text-primary); }
+
+.release-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.1rem;
+  padding: 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.release-toggle:hover .release-count {
+  color: var(--accent);
+  border-color: rgba(47, 224, 255, 0.3);
+  background: var(--accent-soft);
+}
+
+.release-group-header.has-active-track .release-label { color: var(--accent); }
+.release-group-header.has-active-track .release-count {
+  color: var(--accent);
+  border-color: rgba(47, 224, 255, 0.35);
+  background: var(--accent-soft);
+}
+
+.release-group-tracks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.25rem 0;
+  animation: release-expand 0.2s ease;
+}
+
+@keyframes release-expand {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.release-group-list {
+  list-style: none;
+  padding: 0.15rem 0 0.15rem 0.85rem;
+  margin: 0 0 0 1rem;
+  border-left: 1px solid var(--border);
+}
+
+.release-group-list .track-item {
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+}
+
+.release-group-list .track-index {
+  font-size: 0.65rem;
+  width: 1.2rem;
+}
+
+.release-group-list .track-thumb {
+  width: 32px;
+  height: 32px;
+}
+
+.release-group-list .track-name {
+  font-size: 0.8rem;
+}
+
+.release-group-list .track-by {
+  font-size: 0.7rem;
+}
+
+/* ==========================================================================
+   8. BRAND TAGLINE — "Feel the music"
+   ========================================================================== */
+
+.brand-tagline {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-left: 0.65rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--border);
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+@media (min-width: 640px) {
+  .brand-tagline { display: inline; }
+}
+
+/* ==========================================================================
+   9. RESPONSIVE + REDUCED MOTION
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .deck-meta {
+    max-width: 100%;
+    padding: 0.4rem 1rem;
+  }
+
+  .track-title { font-size: 1.05rem; }
+  .track-artist { font-size: 0.85rem; }
+  .track-album { font-size: 0.75rem; }
+
+  .track-thumb {
+    width: 34px;
+    height: 34px;
+  }
+
+  .track-name { font-size: 0.82rem; }
+
+  .filter-tab { font-size: 0.68rem; padding: 0.35rem 0.4rem; }
+  .sort-select { font-size: 0.68rem; padding: 0.35rem 1.75rem 0.35rem 0.6rem; }
+  .chip { font-size: 0.62rem; }
+
+  .release-toggle {
+    font-size: 0.68rem;
+    padding: 0.45rem 0.5rem;
+  }
+  .release-label { font-size: 0.65rem; }
+  .release-count {
+    font-size: 0.58rem;
+    height: 1rem;
+    min-width: 1.35rem;
+  }
+  .release-group-list .track-thumb {
+    width: 28px;
+    height: 28px;
+  }
+  .release-group-list .track-name { font-size: 0.76rem; }
+  .release-group-list .track-by { font-size: 0.66rem; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .track-title { font-size: clamp(1.1rem, 2vw, 1.4rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track-thumb.is-spinning,
+  .deck-disc.is-spinning { animation: none; }
+  .chip { animation: none; }
+  .release-caret { transition: none; }
+  .release-group-tracks { animation: none; }
+}
