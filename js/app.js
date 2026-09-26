@@ -2,7 +2,9 @@
    RS Soul — App bootstrap
    --------------------------------------------------------------------------
    Wires everything together:
-     • theme toggle (persisted, follows OS preference on first visit)
+     • base theme toggle (dark / light) — persisted, follows OS on first visit
+     • accent color picker (8 palettes) — persisted
+     • theme picker modal (gear icon → modal)
      • sidebar drawer (mobile) + backdrop
      • lyrics panel toggle
      • keyboard shortcuts (Space, ←/→, ↑/↓, M, S, R, N, P, L)
@@ -18,13 +20,28 @@
   const player = SonoraPlayer;
   const api = SonoraAPI;
 
-  /* ---------- Theme ---------- */
+  /* ---------- Theme constants ---------- */
 
   const THEME_KEY = 'sonora-theme';
+  const ACCENT_KEY = 'sonora-accent';
+
+  const DEFAULT_THEME = 'dark';
+  const DEFAULT_ACCENT = 'cyan';
+
+  const VALID_THEMES = ['dark', 'light'];
+  const VALID_ACCENTS = [
+    'cyan', 'violet', 'emerald', 'amber',
+    'rose', 'indigo', 'gold', 'pink'
+  ];
+
+  /* ---------- Base theme ---------- */
 
   function applyTheme(theme) {
+    if (!VALID_THEMES.includes(theme)) theme = DEFAULT_THEME;
+
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
+
     const btn = $('#theme-toggle');
     const icon = $('#theme-icon');
     if (btn) {
@@ -32,23 +49,127 @@
       btn.setAttribute('aria-label',
         theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
     }
-    if (icon) icon.className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    if (icon) {
+      icon.className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+
     storage.set(THEME_KEY, theme);
+    syncThemeModalSelection();
   }
 
+  /* ---------- Accent color ---------- */
+
+  function applyAccent(accent) {
+    if (!VALID_ACCENTS.includes(accent)) accent = DEFAULT_ACCENT;
+
+    document.documentElement.setAttribute('data-accent', accent);
+    storage.set(ACCENT_KEY, accent);
+    syncThemeModalSelection();
+  }
+
+  /* ---------- Theme picker modal ---------- */
+
+  function openThemeModal() {
+    const modal = $('#theme-modal');
+    if (!modal) return;
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => modal.classList.add('is-open'));
+    setTimeout(() => modal.querySelector('button')?.focus(), 100);
+  }
+
+  function closeThemeModal() {
+    const modal = $('#theme-modal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    setTimeout(() => { modal.hidden = true; }, 250);
+  }
+
+  function syncThemeModalSelection() {
+    const modal = $('#theme-modal');
+    if (!modal) return;
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || DEFAULT_THEME;
+    const currentAccent = document.documentElement.getAttribute('data-accent') || DEFAULT_ACCENT;
+
+    // Base theme radios
+    modal.querySelectorAll('[data-base]').forEach((btn) => {
+      const active = btn.dataset.base === currentTheme;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-checked', String(active));
+    });
+
+    // Accent radios
+    modal.querySelectorAll('[data-accent]').forEach((btn) => {
+      const active = btn.dataset.accent === currentAccent;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-checked', String(active));
+    });
+  }
+
+  function initThemePicker() {
+    // Open modal — palette button
+    $('#theme-picker-btn')?.addEventListener('click', openThemeModal);
+
+    // Close modal — backdrop + close button
+    document.querySelectorAll('[data-close-theme-modal]').forEach((el) => {
+      el.addEventListener('click', closeThemeModal);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      const modal = $('#theme-modal');
+      if (e.key === 'Escape' && modal && !modal.hidden) closeThemeModal();
+    });
+
+    // Base theme selection
+    document.querySelectorAll('[data-base]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyTheme(btn.dataset.base);
+        showToast(
+          `Theme: ${btn.dataset.base === 'light' ? 'Light' : 'Dark'}`,
+          { icon: btn.dataset.base === 'light' ? 'fa-sun' : 'fa-moon' }
+        );
+      });
+    });
+
+    // Accent selection
+    document.querySelectorAll('[data-accent]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyAccent(btn.dataset.accent);
+        const label = btn.dataset.accent.charAt(0).toUpperCase() + btn.dataset.accent.slice(1);
+        showToast(`Accent: ${label}`, { icon: 'fa-palette' });
+      });
+    });
+
+    // Reset to defaults
+    $('#theme-reset-btn')?.addEventListener('click', () => {
+      applyTheme(DEFAULT_THEME);
+      applyAccent(DEFAULT_ACCENT);
+      showToast('Appearance reset to default', { icon: 'fa-rotate-left' });
+    });
+  }
+
+  /* ---------- Theme init ---------- */
+
   function initTheme() {
-    // index.html already resolved the initial theme before paint;
-    // we just read it back and wire the toggle.
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    // Base theme — index.html already resolved this before paint.
+    const current = document.documentElement.getAttribute('data-theme') || DEFAULT_THEME;
     applyTheme(current);
 
+    // Accent — read from localStorage (or default).
+    const storedAccent = storage.get(ACCENT_KEY, DEFAULT_ACCENT);
+    applyAccent(storedAccent);
+
+    // Simple toggle button flips base mode only.
     $('#theme-toggle')?.addEventListener('click', () => {
       const next = document.documentElement.getAttribute('data-theme') === 'light'
         ? 'dark' : 'light';
       applyTheme(next);
     });
 
-    // Follow OS changes if the user hasn't explicitly chosen.
+    // Follow OS changes if the user hasn't explicitly chosen a theme.
     if (window.matchMedia) {
       const mql = window.matchMedia('(prefers-color-scheme: light)');
       const handler = (e) => {
@@ -56,6 +177,9 @@
       };
       mql.addEventListener ? mql.addEventListener('change', handler) : mql.addListener(handler);
     }
+
+    // Wire up the picker modal.
+    initThemePicker();
   }
 
   /* ---------- Sidebar (mobile drawer) ---------- */
@@ -82,7 +206,6 @@
     });
     backdrop?.addEventListener('click', close);
 
-    // Close on Escape and on track selection (feels natural on phones).
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
     playlist.on('track:select', close);
   }
@@ -114,8 +237,6 @@
         content.innerHTML = '<p class="lyrics-empty">Load a track to see its lyrics.</p>';
         return;
       }
-      // Lyrics aren't shipped with GitHub assets by default. Show the
-      // release blurb as a stand-in so the panel isn't empty.
       content.innerHTML = `
         <p class="lyrics-empty" style="margin-bottom:.6rem;">
           ${SonoraUtils.escapeHtml(track.artist)} — ${SonoraUtils.escapeHtml(track.title)}
@@ -128,7 +249,6 @@
       `;
     }
 
-    // Re-render when a new track loads.
     player.on('track:loaded', () => { if (!panel.hidden) renderLyrics(); });
   }
 
@@ -136,7 +256,6 @@
 
   function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-      // Ignore when the user is typing in a field.
       const t = e.target;
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
 
@@ -202,16 +321,12 @@
   /* ---------- Track selection plumbing ---------- */
 
   function initSelection() {
-    // Playlist row click → player load + autoplay.
     playlist.on('track:select', ({ track, index }) => {
       player.load(track, index);
       player.play();
     });
 
-    // ----------------------------------------------------------------
-    // Thumbnail spin sync — only the active row's thumbnail spins
-    // while audio is actually playing.
-    // ----------------------------------------------------------------
+    // Thumbnail spin sync
     function syncThumbSpins() {
       const list = document.getElementById('playlist');
       if (!list) return;
@@ -248,7 +363,6 @@
         `Loaded ${tracks.length} track${tracks.length === 1 ? '' : 's'} from GitHub`,
         { icon: 'fa-github' }
       );
-      // Resume last track if any; otherwise preload the first.
       if (!player.restoreLastTrack()) {
         if (tracks[0]) player.load(tracks[0], 0);
       }
@@ -264,7 +378,6 @@
         );
         if (!player.restoreLastTrack() && fallback[0]) player.load(fallback[0], 0);
       } else {
-        // No fallback configured — show a clear error in the sidebar.
         playlist.setTracks([]);
         if (status) {
           status.innerHTML =
@@ -275,7 +388,6 @@
       }
     }
 
-    // Hide the loading status once the playlist is populated.
     if (status && playlist.getTracks().length > 0) {
       status.classList.add('is-hidden');
     }
@@ -292,7 +404,6 @@
     initKeyboardShortcuts();
     initSelection();
 
-    // Kick off the network fetch without blocking first paint.
     loadTracks();
 
     // Persist scroll position of the queue across reloads.
