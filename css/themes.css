@@ -1,19 +1,21 @@
 /* ==========================================================================
-   RS Soul — Theme Tokens
+   RS Soul — Theme Tokens (Multi-Accent System)
    --------------------------------------------------------------------------
-   A dark "console" base with electric cyan + violet neon accents, and a
-   warm amber reserved only for the favorite/heart state. Every color used
-   anywhere in the app comes from a variable defined here, so the whole
-   UI re-themes by swapping the data-theme attribute on <html> — see the
-   inline script in index.html and js/app.js for the toggle logic.
+   Two-layer theme system:
+     1. Base mode  — dark / light (set via data-theme on <html>)
+     2. Accent     — 8 color palettes (set via data-accent on <html>)
 
-   Palettes:
-     • dark   — default, high-contrast, ideal for night listening
-     • light  — softer, ideal for daylight
+   Every combination (2 × 8 = 16) works automatically because all
+   accent colors reference the same CSS variables.
+
+   Usage in index.html:
+     <html data-theme="dark" data-accent="cyan">
+
+   JS updates the attributes on <html> when the user changes theme.
    ========================================================================== */
 
 /* ==========================================================================
-   DARK THEME (default)
+   BASE MODE — DARK (default)
    ========================================================================== */
 
 :root {
@@ -32,29 +34,9 @@
   --text-secondary: #a8acc0;
   --text-muted: #6b6f85;
 
-  /* Accents — RS Soul signature palette */
-  --accent: #2fe0ff;                       /* electric cyan */
-  --accent-soft: rgba(47, 224, 255, 0.16);
-  --accent-2: #b16bff;                     /* violet */
-  --accent-2-soft: rgba(177, 107, 255, 0.16);
-  --accent-warm: #ffab5e;                  /* amber — reserved for likes/hearts */
-  --accent-warm-soft: rgba(255, 171, 94, 0.18);
-
-  /* Gradients */
-  --gradient-accent: linear-gradient(135deg, var(--accent), var(--accent-2));
-  --gradient-glow: radial-gradient(
-    circle,
-    rgba(47, 224, 255, 0.35),
-    rgba(177, 107, 255, 0.12) 55%,
-    transparent 75%
-  );
-
   /* Elevation */
   --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.35);
   --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.5);
-
-  /* Focus ring — shared by every interactive element */
-  --focus-ring: 0 0 0 3px rgba(47, 224, 255, 0.45);
 
   /* Typography */
   --font-display: 'Syne', sans-serif;
@@ -63,7 +45,7 @@
 }
 
 /* ==========================================================================
-   LIGHT THEME
+   BASE MODE — LIGHT
    ========================================================================== */
 
 [data-theme="light"] {
@@ -82,27 +64,303 @@
   --text-secondary: #4b4e60;
   --text-muted: #82859a;
 
-  /* Accents — RS Soul signature palette (light variant) */
-  --accent: #0891a8;                       /* deeper cyan for contrast */
-  --accent-soft: rgba(8, 145, 168, 0.13);
-  --accent-2: #7c3aed;                     /* deeper violet */
-  --accent-2-soft: rgba(124, 58, 237, 0.13);
-  --accent-warm: #d9791f;                  /* amber for likes/hearts */
-  --accent-warm-soft: rgba(217, 121, 31, 0.15);
+  /* Elevation */
+  --shadow-soft: 0 8px 30px rgba(20, 21, 30, 0.08);
+  --shadow-strong: 0 20px 50px rgba(20, 21, 30, 0.12);
+}
 
-  /* Gradients */
-  --gradient-accent: linear-gradient(135deg, var(--accent), var(--accent-2));
+/* ==========================================================================
+   ACCENT PALETTES — 8 options
+   --------------------------------------------------------------------------
+   Usage: <html data-accent="cyan">
+   Values: cyan | violet | emerald | amber | rose | indigo | gold | pink
+   ========================================================================== */
+
+/* ---------- 1. CYAN (default) ---------- */
+
+:root,
+[data-accent="cyan"] {
+  --accent: #2fe0ff;
+  --accent-soft: rgba(47, 224, 255, 0.16);
+  --accent-2: #b16bff;
+  --accent-2-soft: rgba(177, 107, 255, 0.16);
+  --accent-warm: #ffab5e;
+  --accent-warm-soft: rgba(255, 171, 94, 0.18);
+  --gradient-accent: linear-gradient(135deg, #2fe0ff, #b16bff);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(47, 224, 255, 0.35),
+    rgba(177, 107, 255, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(47, 224, 255, 0.45);
+}
+
+[data-theme="light"][data-accent="cyan"] {
+  --accent: #0891a8;
+  --accent-soft: rgba(8, 145, 168, 0.13);
+  --accent-2: #7c3aed;
+  --accent-2-soft: rgba(124, 58, 237, 0.13);
+  --accent-warm: #d9791f;
+  --accent-warm-soft: rgba(217, 121, 31, 0.15);
+  --gradient-accent: linear-gradient(135deg, #0891a8, #7c3aed);
   --gradient-glow: radial-gradient(
     circle,
     rgba(8, 145, 168, 0.22),
     rgba(124, 58, 237, 0.1) 55%,
     transparent 75%
   );
-
-  /* Elevation */
-  --shadow-soft: 0 8px 30px rgba(20, 21, 30, 0.08);
-  --shadow-strong: 0 20px 50px rgba(20, 21, 30, 0.12);
-
-  /* Focus ring */
   --focus-ring: 0 0 0 3px rgba(8, 145, 168, 0.35);
+}
+
+/* ---------- 2. VIOLET ---------- */
+
+[data-accent="violet"] {
+  --accent: #b16bff;
+  --accent-soft: rgba(177, 107, 255, 0.16);
+  --accent-2: #ff6b9d;
+  --accent-2-soft: rgba(255, 107, 157, 0.16);
+  --accent-warm: #ffab5e;
+  --accent-warm-soft: rgba(255, 171, 94, 0.18);
+  --gradient-accent: linear-gradient(135deg, #b16bff, #ff6b9d);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(177, 107, 255, 0.35),
+    rgba(255, 107, 157, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(177, 107, 255, 0.45);
+}
+
+[data-theme="light"][data-accent="violet"] {
+  --accent: #7c3aed;
+  --accent-soft: rgba(124, 58, 237, 0.13);
+  --accent-2: #e91e63;
+  --accent-2-soft: rgba(233, 30, 99, 0.13);
+  --accent-warm: #d9791f;
+  --accent-warm-soft: rgba(217, 121, 31, 0.15);
+  --gradient-accent: linear-gradient(135deg, #7c3aed, #e91e63);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(124, 58, 237, 0.22),
+    rgba(233, 30, 99, 0.1) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+/* ---------- 3. EMERALD ---------- */
+
+[data-accent="emerald"] {
+  --accent: #34d399;
+  --accent-soft: rgba(52, 211, 153, 0.16);
+  --accent-2: #2fe0ff;
+  --accent-2-soft: rgba(47, 224, 255, 0.16);
+  --accent-warm: #fbbf24;
+  --accent-warm-soft: rgba(251, 191, 36, 0.18);
+  --gradient-accent: linear-gradient(135deg, #34d399, #2fe0ff);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(52, 211, 153, 0.35),
+    rgba(47, 224, 255, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(52, 211, 153, 0.45);
+}
+
+[data-theme="light"][data-accent="emerald"] {
+  --accent: #059669;
+  --accent-soft: rgba(5, 150, 105, 0.13);
+  --accent-2: #0891a8;
+  --accent-2-soft: rgba(8, 145, 168, 0.13);
+  --accent-warm: #d97706;
+  --accent-warm-soft: rgba(217, 119, 6, 0.15);
+  --gradient-accent: linear-gradient(135deg, #059669, #0891a8);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(5, 150, 105, 0.22),
+    rgba(8, 145, 168, 0.1) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(5, 150, 105, 0.35);
+}
+
+/* ---------- 4. AMBER ---------- */
+
+[data-accent="amber"] {
+  --accent: #fbbf24;
+  --accent-soft: rgba(251, 191, 36, 0.16);
+  --accent-2: #f97316;
+  --accent-2-soft: rgba(249, 115, 22, 0.16);
+  --accent-warm: #ef4444;
+  --accent-warm-soft: rgba(239, 68, 68, 0.18);
+  --gradient-accent: linear-gradient(135deg, #fbbf24, #f97316);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(251, 191, 36, 0.35),
+    rgba(249, 115, 22, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(251, 191, 36, 0.45);
+}
+
+[data-theme="light"][data-accent="amber"] {
+  --accent: #d97706;
+  --accent-soft: rgba(217, 119, 6, 0.13);
+  --accent-2: #ea580c;
+  --accent-2-soft: rgba(234, 88, 12, 0.13);
+  --accent-warm: #dc2626;
+  --accent-warm-soft: rgba(220, 38, 38, 0.15);
+  --gradient-accent: linear-gradient(135deg, #d97706, #ea580c);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(217, 119, 6, 0.22),
+    rgba(234, 88, 12, 0.1) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(217, 119, 6, 0.35);
+}
+
+/* ---------- 5. ROSE ---------- */
+
+[data-accent="rose"] {
+  --accent: #fb7185;
+  --accent-soft: rgba(251, 113, 133, 0.16);
+  --accent-2: #f43f5e;
+  --accent-2-soft: rgba(244, 63, 94, 0.16);
+  --accent-warm: #fbbf24;
+  --accent-warm-soft: rgba(251, 191, 36, 0.18);
+  --gradient-accent: linear-gradient(135deg, #fb7185, #f43f5e);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(251, 113, 133, 0.35),
+    rgba(244, 63, 94, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(251, 113, 133, 0.45);
+}
+
+[data-theme="light"][data-accent="rose"] {
+  --accent: #e11d48;
+  --accent-soft: rgba(225, 29, 72, 0.13);
+  --accent-2: #be123c;
+  --accent-2-soft: rgba(190, 18, 60, 0.13);
+  --accent-warm: #d97706;
+  --accent-warm-soft: rgba(217, 119, 6, 0.15);
+  --gradient-accent: linear-gradient(135deg, #e11d48, #be123c);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(225, 29, 72, 0.22),
+    rgba(190, 18, 60, 0.1) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(225, 29, 72, 0.35);
+}
+
+/* ---------- 6. INDIGO ---------- */
+
+[data-accent="indigo"] {
+  --accent: #818cf8;
+  --accent-soft: rgba(129, 140, 248, 0.16);
+  --accent-2: #c084fc;
+  --accent-2-soft: rgba(192, 132, 252, 0.16);
+  --accent-warm: #fb923c;
+  --accent-warm-soft: rgba(251, 146, 60, 0.18);
+  --gradient-accent: linear-gradient(135deg, #818cf8, #c084fc);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(129, 140, 248, 0.35),
+    rgba(192, 132, 252, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.45);
+}
+
+[data-theme="light"][data-accent="indigo"] {
+  --accent: #4f46e5;
+  --accent-soft: rgba(79, 70, 229, 0.13);
+  --accent-2: #9333ea;
+  --accent-2-soft: rgba(147, 51, 234, 0.13);
+  --accent-warm: #ea580c;
+  --accent-warm-soft: rgba(234, 88, 12, 0.15);
+  --gradient-accent: linear-gradient(135deg, #4f46e5, #9333ea);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(79, 70, 229, 0.22),
+    rgba(147, 51, 234, 0.1) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.35);
+}
+
+/* ---------- 7. GOLD ---------- */
+
+[data-accent="gold"] {
+  --accent: #e0a64f;
+  --accent-soft: rgba(224, 166, 79, 0.16);
+  --accent-2: #b16bff;
+  --accent-2-soft: rgba(177, 107, 255, 0.16);
+  --accent-warm: #ff7e5e;
+  --accent-warm-soft: rgba(255, 126, 94, 0.18);
+  --gradient-accent: linear-gradient(135deg, #e0a64f, #b16bff);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(224, 166, 79, 0.35),
+    rgba(177, 107, 255, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(224, 166, 79, 0.45);
+}
+
+[data-theme="light"][data-accent="gold"] {
+  --accent: #b8791f;
+  --accent-soft: rgba(184, 121, 31, 0.14);
+  --accent-2: #7c3aed;
+  --accent-2-soft: rgba(124, 58, 237, 0.13);
+  --accent-warm: #dc2626;
+  --accent-warm-soft: rgba(220, 38, 38, 0.15);
+  --gradient-accent: linear-gradient(135deg, #b8791f, #7c3aed);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(184, 121, 31, 0.22),
+    rgba(124, 58, 237, 0.1) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(184, 121, 31, 0.35);
+}
+
+/* ---------- 8. PINK ---------- */
+
+[data-accent="pink"] {
+  --accent: #f472b6;
+  --accent-soft: rgba(244, 114, 182, 0.16);
+  --accent-2: #c084fc;
+  --accent-2-soft: rgba(192, 132, 252, 0.16);
+  --accent-warm: #fbbf24;
+  --accent-warm-soft: rgba(251, 191, 36, 0.18);
+  --gradient-accent: linear-gradient(135deg, #f472b6, #c084fc);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(244, 114, 182, 0.35),
+    rgba(192, 132, 252, 0.12) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(244, 114, 182, 0.45);
+}
+
+[data-theme="light"][data-accent="pink"] {
+  --accent: #db2777;
+  --accent-soft: rgba(219, 39, 119, 0.13);
+  --accent-2: #9333ea;
+  --accent-2-soft: rgba(147, 51, 234, 0.13);
+  --accent-warm: #d97706;
+  --accent-warm-soft: rgba(217, 119, 6, 0.15);
+  --gradient-accent: linear-gradient(135deg, #db2777, #9333ea);
+  --gradient-glow: radial-gradient(
+    circle,
+    rgba(219, 39, 119, 0.22),
+    rgba(147, 51, 234, 0.1) 55%,
+    transparent 75%
+  );
+  --focus-ring: 0 0 0 3px rgba(219, 39, 119, 0.35);
 }
