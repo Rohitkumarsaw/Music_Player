@@ -1,0 +1,446 @@
+/* ==========================================================================
+   RS Soul — Theme Picker Modal
+   --------------------------------------------------------------------------
+   Styles for the appearance/theme picker modal:
+     • backdrop
+     • modal shell (glassmorphic card)
+     • base theme options (dark / light preview cards)
+     • accent color grid (8 swatches)
+     • reset button
+     • responsive + reduced-motion
+
+   Loaded AFTER css/patch-title.css.
+   Depends on tokens from css/themes.css (--accent, --surface, --border, etc.)
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Modal shell
+   ========================================================================== */
+
+.theme-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.theme-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.theme-modal[hidden] {
+  display: none;
+}
+
+/* ---------- Backdrop ---------- */
+
+.theme-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+/* ---------- Modal content card ---------- */
+
+.theme-modal-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-modal.is-open .theme-modal-content {
+  transform: scale(1) translateY(0);
+}
+
+/* ==========================================================================
+   2. Header
+   ========================================================================== */
+
+.theme-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.theme-modal-header h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.theme-modal-header h2 i {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+/* ==========================================================================
+   3. Body — sections
+   ========================================================================== */
+
+.theme-modal-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.theme-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-section-title {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.85rem;
+}
+
+/* ==========================================================================
+   4. Base theme options (Dark / Light preview cards)
+   ========================================================================== */
+
+.theme-options-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+  text-align: center;
+}
+
+.theme-option:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-strong);
+  transform: translateY(-2px);
+}
+
+.theme-option.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Preview thumbnail */
+.theme-option-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+}
+
+.preview-dark {
+  background: linear-gradient(135deg, #0a0b10, #1a1030);
+}
+
+.preview-light {
+  background: linear-gradient(135deg, #f3f4f9, #e5e7f0);
+}
+
+.preview-disc {
+  width: 38%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Label */
+.theme-option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.theme-option.is-active .theme-option-label {
+  color: var(--accent);
+}
+
+.theme-option-label i {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   5. Accent color grid (8 swatches)
+   ========================================================================== */
+
+.theme-options-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.accent-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.4rem 0.55rem;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.accent-option:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-strong);
+  transform: translateY(-2px);
+}
+
+.accent-option.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.accent-swatch {
+  width: 100%;
+  max-width: 42px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--swatch-1), var(--swatch-2));
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.accent-option:hover .accent-swatch {
+  transform: scale(1.08);
+}
+
+.accent-option.is-active .accent-swatch {
+  /* Distinct ring when active */
+  box-shadow:
+    0 0 0 2px var(--bg-elevated),
+    0 0 0 4px var(--accent),
+    0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.accent-name {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.accent-option.is-active .accent-name {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   6. Footer — reset button
+   ========================================================================== */
+
+.theme-modal-footer {
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.theme-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.theme-reset-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-strong);
+  border-color: var(--border-strong);
+}
+
+.theme-reset-btn:active {
+  transform: scale(0.97);
+}
+
+.theme-reset-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.theme-reset-btn i {
+  font-size: 0.72rem;
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   7. Scrollbar inside modal (macOS-like)
+   ========================================================================== */
+
+.theme-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.theme-modal-content::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+}
+
+.theme-modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==========================================================================
+   8. Responsive
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .theme-modal {
+    padding: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .theme-modal-content {
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(20px);
+  }
+
+  .theme-modal.is-open .theme-modal-content {
+    transform: translateY(0);
+  }
+
+  .theme-modal-header {
+    padding: 1rem 1.25rem 0.85rem;
+  }
+
+  .theme-modal-body {
+    padding: 1rem 1.25rem;
+    gap: 1.5rem;
+  }
+
+  .theme-options-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  .accent-option {
+    padding: 0.55rem 0.3rem 0.45rem;
+  }
+
+  .accent-swatch {
+    max-width: 36px;
+  }
+
+  .accent-name {
+    font-size: 0.58rem;
+  }
+
+  .theme-modal-footer {
+    padding: 0.85rem 1.25rem 1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .theme-options-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ==========================================================================
+   9. Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-modal,
+  .theme-modal-content,
+  .theme-option,
+  .accent-option,
+  .accent-swatch,
+  .theme-reset-btn {
+    transition: none !important;
+  }
+
+  .theme-option:hover,
+  .accent-option:hover,
+  .accent-swatch {
+    transform: none !important;
+  }
+}
