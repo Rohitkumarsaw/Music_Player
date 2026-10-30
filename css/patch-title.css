@@ -12,6 +12,10 @@
      7. Release groups (collapsible)
      8. Brand tagline
      9. Responsive + reduced motion
+<<<<<<< HEAD
+    10. Light Theme Fix
+=======
+>>>>>>> 1cb322a42f7b965f06df85e9cda69dfafc837fce
    ========================================================================== */
 
 /* ==========================================================================
@@ -926,4 +930,76 @@ input:focus-visible {
   .chip { animation: none; }
   .release-caret { transition: none; }
   .release-group-tracks { animation: none; }
+<<<<<<< HEAD
+}
+
+/* ==========================================================================
+   10. LIGHT THEME FIX (Text Color Issue)
+   ========================================================================== */
+
+/* Light theme mein text ko dark color dena taaki wo white background par dikhe */
+[data-theme="light"] .track-name,
+[data-theme="light"] .track-title,
+[data-theme="light"] .track-artist,
+[data-theme="light"] .release-label,
+[data-theme="light"] .filter-tab,
+[data-theme="light"] .sort-select {
+  color: #1a1a1a !important; /* Dark Grey / Black color */
+}
+
+/* Light theme mein artist name aur index ko thoda light grey dena */
+[data-theme="light"] .track-by,
+[data-theme="light"] .track-index,
+[data-theme="light"] .track-album {
+  color: #666666 !important; /* Medium Grey */
+}
+
+/* Active track ka color accent (jaise Cyan) hi rahega */
+[data-theme="light"] .track-item.is-active .track-name,
+[data-theme="light"] .track-item.is-active .track-index {
+  color: var(--accent) !important; 
+}
+
+/* ==========================================================================
+   11. MOBILE LIGHT THEME SIDEBAR HARD FIX
+   ========================================================================== */
+
+/* Sidebar ka background pakka light karein aur overlay ko theek karein */
+[data-theme="light"] .sidebar {
+  background-color: #ffffff !important; 
+  backdrop-filter: none !important; /* Mobile par blur hata dein */
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 2px 0 15px rgba(0,0,0,0.1) !important;
+  z-index: 100 !important; /* Taaki yeh sabke upar dikhe */
+}
+
+/* Text ko puri tarah solid black/dark karein */
+[data-theme="light"] .sidebar .track-name,
+[data-theme="light"] .sidebar .track-title,
+[data-theme="light"] .sidebar .release-toggle,
+[data-theme="light"] .sidebar .filter-tab {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+/* Artist name aur numbers ko dark grey karein */
+[data-theme="light"] .sidebar .track-by,
+[data-theme="light"] .sidebar .track-index,
+[data-theme="light"] .sidebar .release-label,
+[data-theme="light"] .sidebar .sort-select {
+  color: #555555 !important;
+  opacity: 1 !important;
+}
+
+/* Sidebar ke andar active track ka background theek karein */
+[data-theme="light"] .sidebar .track-item.is-active {
+  background-color: rgba(8, 145, 168, 0.15) !important; /* Halka Cyan */
+  border-left: 3px solid #0891a8 !important;
+}
+
+/* Backdrop (peeche ka dark overlay) ko thoda halka karein taaki sidebar clear dikhe */
+[data-theme="light"] .sidebar-backdrop.is-visible {
+  background: rgba(0, 0, 0, 0.4) !important;
+=======
+>>>>>>> 1cb322a42f7b965f06df85e9cda69dfafc837fce
 }
