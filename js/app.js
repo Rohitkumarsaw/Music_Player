@@ -123,7 +123,6 @@
       if (e.key === 'Escape' && modal && !modal.hidden) closeThemeModal();
     });
 
-<<<<<<< HEAD
     // Base theme selection (No Toast)
     document.querySelectorAll('[data-base]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -142,33 +141,6 @@
     $('#theme-reset-btn')?.addEventListener('click', () => {
       applyTheme(DEFAULT_THEME);
       applyAccent(DEFAULT_ACCENT);
-=======
-    // Base theme selection
-    document.querySelectorAll('[data-base]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        applyTheme(btn.dataset.base);
-        showToast(
-          `Theme: ${btn.dataset.base === 'light' ? 'Light' : 'Dark'}`,
-          { icon: btn.dataset.base === 'light' ? 'fa-sun' : 'fa-moon' }
-        );
-      });
-    });
-
-    // Accent selection
-    document.querySelectorAll('[data-accent]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        applyAccent(btn.dataset.accent);
-        const label = btn.dataset.accent.charAt(0).toUpperCase() + btn.dataset.accent.slice(1);
-        showToast(`Accent: ${label}`, { icon: 'fa-palette' });
-      });
-    });
-
-    // Reset to defaults
-    $('#theme-reset-btn')?.addEventListener('click', () => {
-      applyTheme(DEFAULT_THEME);
-      applyAccent(DEFAULT_ACCENT);
-      showToast('Appearance reset to default', { icon: 'fa-rotate-left' });
->>>>>>> 1cb322a42f7b965f06df85e9cda69dfafc837fce
     });
   }
 
